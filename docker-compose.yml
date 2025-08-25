@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: exchanger_app
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    restart: always
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    env_file:
+      - .env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+    restart: always
+
+  redis:
+    image: redis:7
+    container_name: redis_cache
+    volumes:
+      - redis_data:/data
+    restart: always
+
+volumes:
+  db_data:
+  redis_data:
